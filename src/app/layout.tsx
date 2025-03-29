@@ -1,12 +1,10 @@
-"use client";
-
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from '@/components/auth-provider';
 
 export const metadata: Metadata = {
-  title: "Tempo - Modern SaaS Starter",
-  description: "A modern full-stack starter template powered by Next.js",
+  title: "Prdx - Imagine and create",
+  description: "An imagination and creation tool for the modern age",
 };
 
 export default function RootLayout({

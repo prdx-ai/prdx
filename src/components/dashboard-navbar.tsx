@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { LogOut, Settings, User } from 'lucide-react';
+import { LogOut, Settings, User, Image as ImageIcon, Home } from 'lucide-react';
 
 export default function DashboardNavbar() {
   const { user, signOut } = useAuth();
@@ -27,6 +27,21 @@ export default function DashboardNavbar() {
         <Link href="/dashboard" className="flex items-center gap-2">
           <span className="text-xl font-bold">Prdx</span>
         </Link>
+        
+        <div className="hidden md:flex items-center space-x-4">
+          <Link href="/dashboard">
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              <span>Home</span>
+            </Button>
+          </Link>
+          <Link href="/dashboard/gallery">
+            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+              <ImageIcon className="h-4 w-4" />
+              <span>Gallery</span>
+            </Button>
+          </Link>
+        </div>
         
         <div className="flex items-center gap-4">
           <DropdownMenu>

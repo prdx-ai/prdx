@@ -8,7 +8,8 @@ export async function GET(request: Request) {
   
   if (code) {
     try {
-      const supabase = await createClient();
+      // Pass cookies from the request context
+      const supabase = await createClient(null);
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       
       if (error) {

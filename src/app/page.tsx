@@ -208,47 +208,48 @@ export default async function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Pricing Section */}
-        <section className="py-24 bg-gray-800" id="pricing">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold mb-4">
-                Simple, Transparent Pricing
-              </h2>
-              <p className="text-gray-300 max-w-2xl mx-auto">
-                Choose the perfect plan for your creative needs
-              </p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {plans?.map((item: any) => (
-                <PricingCard key={item.id} item={item} user={user} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 bg-gray-900">
-          <div className="container mx-auto px-4 text-center">
+      {/* Pricing Section */}
+      <section className="py-24 bg-gray-800" id="pricing">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
             <h2 className="text-3xl font-bold mb-4">
-              Ready to Transform Your Ideas?
+              Simple, Transparent Pricing
             </h2>
-            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-              Join our community of creators and bring your imagination to life.
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Choose the perfect plan for your creative needs
             </p>
-            <a
-              href="/dashboard"
-              className="inline-flex items-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              Start Creating Now
-              <ArrowUpRight className="ml-2 w-4 h-4" />
-            </a>
           </div>
-        </section>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {plans?.map((item: any) => (
+              <PricingCard key={item.id} item={item} user={user} />
+            ))}
+          </div>
+        </div>
+      </section>
 
-        <Footer />
-      </div>
-    );
+      {/* CTA Section */}
+      <section className="py-20 bg-gray-900">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">
+            Ready to Transform Your Ideas?
+          </h2>
+          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+            Join our community of creators and bring your imagination to life.
+          </p>
+          <a
+            href="/dashboard"
+            className="inline-flex items-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            Start Creating Now
+            <ArrowUpRight className="ml-2 w-4 h-4" />
+          </a>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
 }

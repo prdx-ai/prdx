@@ -26,10 +26,7 @@ export const createServerComponentClient = (cookieStore: ReadonlyRequestCookies)
 };
 
 // Create a client for route handlers that can set cookies
-export const createClient = async (cookieStore = null) => {
-  // Only call cookies() if cookieStore is not provided
-  const cookies_store = cookieStore || cookies();
-  
+export const createClient = async (cookieStore: ReadonlyRequestCookies) => {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

@@ -8,7 +8,8 @@ export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
   const fullName = formData.get("full_name")?.toString() || "";
-  const supabase = await createClient();
+  const cookieStore = cookies();
+  const supabase = await createClient(cookieStore);
 
   if (!email || !password) {
     return encodedRedirect(
@@ -81,7 +82,8 @@ export const signInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", "Email and password are required");
   }
   
-  const supabase = await createClient();
+  const cookieStore = cookies();
+  const supabase = await createClient(cookieStore);
 
   try {
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -103,7 +105,8 @@ export const signInAction = async (formData: FormData) => {
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
-  const supabase = await createClient();
+  const cookieStore = cookies();
+  const supabase = await createClient(cookieStore);
   const callbackUrl = formData.get("callbackUrl")?.toString();
 
   if (!email) {
@@ -132,7 +135,8 @@ export const forgotPasswordAction = async (formData: FormData) => {
 };
 
 export const resetPasswordAction = async (formData: FormData) => {
-  const supabase = await createClient();
+  const cookieStore = cookies();
+  const supabase = await createClient(cookieStore);
 
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
@@ -169,13 +173,15 @@ export const resetPasswordAction = async (formData: FormData) => {
 };
 
 export const signOutAction = async () => {
-  const supabase = await createClient();
+  const cookieStore = cookies();
+  const supabase = await createClient(cookieStore);
   await supabase.auth.signOut();
   return redirect("/sign-in");
 };
 
 export const checkUserSubscription = async (userId: string) => {
-  const supabase = await createClient();
+  const cookieStore = cookies();
+  const supabase = await createClient(cookieStore);
 
   const { data: subscription, error } = await supabase
     .from("subscriptions")

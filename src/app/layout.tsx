@@ -1,11 +1,29 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from '@/components/auth-provider';
-import { useEffect } from 'react';
+import ServiceWorkerRegister from '@/components/service-worker-register';
 
 export const metadata: Metadata = {
   title: "Prdx - Imagine and create",
   description: "An imagination and creation tool for the modern age",
+  // Add more metadata for better SEO
+  keywords: "AI, imagination, creation, productivity, tools",
+  authors: [{ name: "Prdx Team" }],
+  viewport: "width=device-width, initial-scale=1",
+  robots: "index, follow",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://tryprdx.com",
+    title: "Prdx - Imagine and create",
+    description: "An imagination and creation tool for the modern age",
+    siteName: "Prdx",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Prdx - Imagine and create",
+    description: "An imagination and creation tool for the modern age",
+  },
 };
 
 export default function RootLayout({
@@ -13,26 +31,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Register service worker
-  useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js').then(
-          function(registration) {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-          },
-          function(err) {
-            console.log('ServiceWorker registration failed: ', err);
-          }
-        );
-      });
-    }
-  }, []);
-
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className="h-full">
+      <body className="h-full">
         <AuthProvider>
+          <ServiceWorkerRegister />
           {children}
         </AuthProvider>
       </body>

@@ -1,24 +1,25 @@
-export type Message =
-  | { success: string }
-  | { error: string }
-  | { message: string };
+import { AlertCircle, CheckCircle } from "lucide-react";
+
+export type Message = {
+  type: "success" | "error";
+  message: string;
+};
 
 export function FormMessage({ message }: { message: Message }) {
   return (
-    <div className="flex flex-col gap-2 w-full max-w-md text-sm">
-      {"success" in message && (
-        <div className="text-green-500 border-l-2 border-green-500 px-4">
-          {message.success}
-        </div>
+    <div
+      className={`flex items-center gap-2 rounded-md p-3 ${
+        message.type === "error"
+          ? "bg-destructive/15 text-destructive"
+          : "bg-green-500/15 text-green-500"
+      }`}
+    >
+      {message.type === "error" ? (
+        <AlertCircle className="h-4 w-4" />
+      ) : (
+        <CheckCircle className="h-4 w-4" />
       )}
-      {"error" in message && (
-        <div className="text-red-500 border-l-2 border-red-500 px-4">
-          {message.error}
-        </div>
-      )}
-      {"message" in message && (
-        <div className="text-foreground border-l-2 px-4">{message.message}</div>
-      )}
+      <p className="text-sm font-medium">{message.message}</p>
     </div>
   );
 }

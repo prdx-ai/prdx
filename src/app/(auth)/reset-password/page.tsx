@@ -9,11 +9,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createClient } from "../../../supabase/client";
 
-interface LoginProps {
+interface ResetPasswordProps {
   searchParams: { [key: string]: string | string[] | undefined };
 }
 
-export default function SignInPage({ searchParams }: LoginProps) {
+export default function ResetPasswordPage({ searchParams }: ResetPasswordProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,18 @@ export default function SignInPage({ searchParams }: LoginProps) {
       const successMsg = typeof searchParams.message === 'string' ? searchParams.message : searchParams.message[0];
       setMessage({ type: 'success', message: successMsg });
     }
-  }, [searchParams]);
+    
+    // Check if user is authenticated
+    const checkUser = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/sign-in?error=Password reset link is invalid or has expired');
+      }
+    };
+    
+    checkUser();
+  }, [searchParams, router]);
 
   const handleSubmit = async (formData: FormData) => {
     setIsLoading(true);
@@ -39,21 +50,25 @@ export default function SignInPage({ searchParams }: LoginProps) {
     setMessage(null);
     
     try {
-      const email = formData.get("email") as string;
       const password = formData.get("password") as string;
+      const confirmPassword = formData.get("confirmPassword") as string;
       
-      if (!email || !password) {
-        const errorMsg = "Email and password are required";
+      if (!password || !confirmPassword) {
+        const errorMsg = "Both password fields are required";
+        setError(errorMsg);
+        setMessage({ type: 'error', message: errorMsg });
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        const errorMsg = "Passwords do not match";
         setError(errorMsg);
         setMessage({ type: 'error', message: errorMsg });
         return;
       }
       
       const supabase = createClient();
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await supabase.auth.updateUser({ password });
       
       if (error) {
         setError(error.message);
@@ -61,10 +76,9 @@ export default function SignInPage({ searchParams }: LoginProps) {
         return;
       }
       
-      if (data.user) {
-        router.push('/dashboard');
-        router.refresh();
-      }
+      // Set success message and show a link to sign-in instead of redirecting
+      setMessage({ type: 'success', message: 'Your password has been reset successfully' });
+      
     } catch (err: any) {
       const errorMsg = err.message || "An unexpected error occurred";
       setError(errorMsg);
@@ -77,8 +91,20 @@ export default function SignInPage({ searchParams }: LoginProps) {
   // Display message if present
   if (message) {
     return (
-      <div className="flex h-screen w-full flex-1 items-center justify-center p-4 sm:max-w-md">
-        <FormMessage message={message} />
+      <div className="flex h-screen w-full flex-1 items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-4">
+          <FormMessage message={message} />
+          {message.type === 'success' && (
+            <div className="text-center mt-4">
+              <Link 
+                href="/sign-in" 
+                className="bg-primary text-primary-foreground hover:bg-primary/90 py-2 px-4 rounded-md inline-block"
+              >
+                Back to Sign In
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
@@ -90,50 +116,36 @@ export default function SignInPage({ searchParams }: LoginProps) {
         <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-sm">
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(new FormData(e.currentTarget)); }} className="flex flex-col space-y-6">
             <div className="space-y-2 text-center">
-              <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
+              <h1 className="text-2xl font-semibold tracking-tight">Reset Password</h1>
               <p className="text-sm text-muted-foreground">
-                Don't have an account?{" "}
-                <Link
-                  className="text-primary font-medium hover:underline transition-all"
-                  href="/sign-up"
-                >
-                  Sign up
-                </Link>
+                Enter your new password below
               </p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
-                  Email
+                <Label htmlFor="password" className="text-sm font-medium">
+                  New Password
                 </Label>
                 <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="Enter new password"
                   required
                   className="w-full"
                 />
               </div>
-
+              
               <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label htmlFor="password" className="text-sm font-medium">
-                    Password
-                  </Label>
-                  <Link
-                    className="text-xs text-muted-foreground hover:text-foreground hover:underline transition-all"
-                    href="/forgot-password"
-                  >
-                    Forgot Password?
-                  </Link>
-                </div>
+                <Label htmlFor="confirmPassword" className="text-sm font-medium">
+                  Confirm Password
+                </Label>
                 <Input
-                  id="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
                   type="password"
-                  name="password"
-                  placeholder="Your password"
+                  placeholder="Confirm new password"
                   required
                   className="w-full"
                 />
@@ -145,7 +157,7 @@ export default function SignInPage({ searchParams }: LoginProps) {
               className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-2 px-4 rounded-md"
               disabled={isLoading}
             >
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoading ? "Resetting..." : "Reset Password"}
             </button>
 
             {error && (

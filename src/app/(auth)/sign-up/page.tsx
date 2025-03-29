@@ -1,20 +1,86 @@
+'use client';
+
 import { FormMessage, Message } from "@/components/form-message";
-import { SubmitButton } from "@/components/submit-button";
+import Navbar from "@/components/navbar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { SmtpMessage } from "../smtp-message";
-import { signUpAction } from "@/app/actions";
-import Navbar from "@/components/navbar";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "../../../supabase/client";
 
-export default async function Signup(props: {
-  searchParams: Promise<Message>;
-}) {
-  const searchParams = await props.searchParams;
-  if ("message" in searchParams) {
+interface SignUpProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default function SignUpPage({ searchParams }: SignUpProps) {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<Message | null>(null);
+  
+  // Handle error and message from URL params
+  useEffect(() => {
+    if (searchParams.error) {
+      const errorMsg = typeof searchParams.error === 'string' ? searchParams.error : searchParams.error[0];
+      setError(errorMsg);
+      setMessage({ type: 'error', message: errorMsg });
+    }
+    
+    if (searchParams.message) {
+      const successMsg = typeof searchParams.message === 'string' ? searchParams.message : searchParams.message[0];
+      setMessage({ type: 'success', message: successMsg });
+    }
+  }, [searchParams]);
+
+  const handleSubmit = async (formData: FormData) => {
+    setIsLoading(true);
+    setError(null);
+    setMessage(null);
+    
+    try {
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
+      
+      if (!email || !password) {
+        const errorMsg = "Email and password are required";
+        setError(errorMsg);
+        setMessage({ type: 'error', message: errorMsg });
+        return;
+      }
+      
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      });
+      
+      if (error) {
+        setError(error.message);
+        setMessage({ type: 'error', message: error.message });
+        return;
+      }
+      
+      if (data.user) {
+        router.push('/sign-in?message=Check your email to confirm your account');
+      }
+    } catch (err: any) {
+      const errorMsg = err.message || "An unexpected error occurred";
+      setError(errorMsg);
+      setMessage({ type: 'error', message: errorMsg });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Display message if present
+  if (message) {
     return (
       <div className="flex h-screen w-full flex-1 items-center justify-center p-4 sm:max-w-md">
-        <FormMessage message={searchParams} />
+        <FormMessage message={message} />
       </div>
     );
   }
@@ -24,7 +90,7 @@ export default async function Signup(props: {
       <Navbar />
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
         <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-sm">
-          <form className="flex flex-col space-y-6">
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(new FormData(e.currentTarget)); }} className="flex flex-col space-y-6">
             <div className="space-y-2 text-center">
               <h1 className="text-3xl font-semibold tracking-tight">Sign up</h1>
               <p className="text-sm text-muted-foreground">
@@ -39,20 +105,6 @@ export default async function Signup(props: {
             </div>
 
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="full_name" className="text-sm font-medium">
-                  Full Name
-                </Label>
-                <Input
-                  id="full_name"
-                  name="full_name"
-                  type="text"
-                  placeholder="John Doe"
-                  required
-                  className="w-full"
-                />
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">
                   Email
@@ -75,26 +127,28 @@ export default async function Signup(props: {
                   id="password"
                   type="password"
                   name="password"
-                  placeholder="Your password"
-                  minLength={6}
+                  placeholder="Create a password"
                   required
                   className="w-full"
                 />
               </div>
             </div>
 
-            <SubmitButton
-              formAction={signUpAction}
-              pendingText="Signing up..."
-              className="w-full"
+            <button
+              type="submit"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-2 px-4 rounded-md"
+              disabled={isLoading}
             >
-              Sign up
-            </SubmitButton>
+              {isLoading ? "Creating account..." : "Create account"}
+            </button>
 
-            <FormMessage message={searchParams} />
+            {error && (
+              <div className="p-3 bg-destructive/15 border border-destructive/30 rounded-md text-destructive text-sm">
+                {error}
+              </div>
+            )}
           </form>
         </div>
-        <SmtpMessage />
       </div>
     </>
   );

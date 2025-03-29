@@ -1,9 +1,8 @@
-import { createClient } from "../../../supabase/server";
-import { redirect } from "next/navigation";
+'use client';
+
+import ProtectedRoute from "@/components/protected-route";
 import ChatUI from "@/components/ChatUI";
 import DashboardNavbar from "@/components/dashboard-navbar";
-import { SubscriptionCheck } from "@/components/subscription-check";
-import ProtectedRoute from "@/components/protected-route";
 
 export default function Dashboard() {
   return (

@@ -1,47 +1,74 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { createClient } from '../../supabase/client'
+import { useAuth } from './auth-provider';
+import Link from 'next/link';
+import { Button } from './ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu'
-import { Button } from './ui/button'
-import { UserCircle, Home } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+} from './ui/dropdown-menu';
+import { LogOut, Settings, User } from 'lucide-react';
 
 export default function DashboardNavbar() {
-  const supabase = createClient()
-  const router = useRouter()
+  const { user, signOut } = useAuth();
+  
+  const initials = user?.email 
+    ? user.email.substring(0, 2).toUpperCase() 
+    : 'U';
 
   return (
-    <nav className="w-full border-b border-gray-200 bg-white py-4">
-      <div className="container mx-auto px-4 flex justify-between items-center">
+    <header className="border-b border-border bg-card">
+      <div className="container flex h-16 items-center justify-between px-4">
+        <Link href="/dashboard" className="flex items-center gap-2">
+          <span className="text-xl font-bold">Prdx</span>
+        </Link>
+        
         <div className="flex items-center gap-4">
-          <Link href="/" prefetch className="text-xl font-bold">
-            Logo
-          </Link>
-        </div>
-        <div className="flex gap-4 items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <UserCircle className="h-6 w-6" />
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email || ''} />
+                  <AvatarFallback>{initials}</AvatarFallback>
+                </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={async () => {
-                await supabase.auth.signOut()
-                router.push("/")
-              }}>
-                Sign out
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/profile" className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard/settings" className="cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => signOut()}
+                className="cursor-pointer"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
-    </nav>
-  )
+    </header>
+  );
 }

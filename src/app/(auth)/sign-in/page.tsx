@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "../../../../supabase/client";
 
 interface LoginProps {
@@ -33,7 +33,8 @@ export default function SignInPage({ searchParams }: LoginProps) {
     }
   }, [searchParams]);
 
-  const handleSubmit = async (formData: FormData) => {
+  // Memoize the submit handler to prevent recreation on each render
+  const handleSubmit = useCallback(async (formData: FormData) => {
     setIsLoading(true);
     setError(null);
     setMessage(null);
@@ -63,7 +64,6 @@ export default function SignInPage({ searchParams }: LoginProps) {
       
       if (data.user) {
         router.push('/dashboard');
-        router.refresh();
       }
     } catch (err: any) {
       const errorMsg = err.message || "An unexpected error occurred";
@@ -72,7 +72,7 @@ export default function SignInPage({ searchParams }: LoginProps) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
 
   // Display message if present
   if (message) {

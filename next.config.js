@@ -12,10 +12,6 @@ const nextConfig = {
   swcMinify: true,
   // Experimental features for performance
   experimental: {
-    // Enable server components
-    serverComponents: true,
-    // Enable concurrent features
-    concurrentFeatures: true,
     // Enable optimistic updates
     optimisticClientCache: true,
   },

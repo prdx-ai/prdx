@@ -1,15 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from '@/components/auth-provider';
 import ServiceWorkerRegister from '@/components/service-worker-register';
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "Prdx - Imagine and create",
   description: "An imagination and creation tool for the modern age",
-  // Add more metadata for better SEO
   keywords: "AI, imagination, creation, productivity, tools",
   authors: [{ name: "Prdx Team" }],
-  viewport: "width=device-width, initial-scale=1",
   robots: "index, follow",
   openGraph: {
     type: "website",

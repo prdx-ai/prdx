@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { updateSession } from '../supabase/middleware';
+import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs';
 
-export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req, res });
+  
+  // Refresh session if expired
+  await supabase.auth.getSession();
+  
+  return res;
 }
 
 export const config = {
@@ -14,8 +20,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public (public files)
-     * - api/payments/webhook (webhook endpoints)
      */
-    '/((?!_next/static|_next/image|favicon.ico|public|api/payments/webhook).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 };

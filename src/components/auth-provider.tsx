@@ -33,28 +33,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
-    // Use an IIFE to handle async operations
-    (async () => {
+    // Check for existing session immediately
+    const checkSession = async () => {
       try {
-        // Check for existing session in localStorage first for faster initial load
-        const cachedSession = localStorage.getItem('supabase.auth.token');
-        if (cachedSession) {
-          try {
-            const parsed = JSON.parse(cachedSession);
-            if (parsed?.currentSession?.user) {
-              // Pre-populate state while we verify with server
-              setUser(parsed.currentSession.user);
-            }
-          } catch (e) {
-            // Invalid cache, ignore
-          }
-        }
-
-        // Then verify with server
         const { data: { session }, error } = await supabase.auth.getSession();
+        
         if (error) {
           console.error('Error getting session:', error);
-          setIsLoading(false);
           return;
         }
         
@@ -67,14 +52,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } finally {
         setIsLoading(false);
       }
-    })();
+    };
 
+    checkSession();
+
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setIsLoading(false);
-        router.refresh();
       }
     );
 

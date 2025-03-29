@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
+import { cookies } from 'next/headers';
 
 // Create a client that takes cookies as a parameter to avoid calling cookies() outside request context
 export const createServerComponentClient = (cookieStore: ReadonlyRequestCookies) => {
@@ -25,7 +26,10 @@ export const createServerComponentClient = (cookieStore: ReadonlyRequestCookies)
 };
 
 // Create a client for route handlers that can set cookies
-export const createClient = async (cookieStore: ReadonlyRequestCookies) => {
+export const createClient = async (cookieStore?: ReadonlyRequestCookies) => {
+  // If cookieStore is not provided, get it from cookies()
+  const cookieStoreToUse = cookieStore || cookies();
+  
   // Create client with the provided cookieStore
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,13 +37,13 @@ export const createClient = async (cookieStore: ReadonlyRequestCookies) => {
     {
       cookies: {
         get(name: string) {
-          return cookieStore.get(name)?.value;
+          return cookieStoreToUse.get(name)?.value;
         },
         set(name: string, value: string, options: any) {
-          cookieStore.set(name, value, options);
+          cookieStoreToUse.set(name, value, options);
         },
         remove(name: string, options: any) {
-          cookieStore.set(name, '', { ...options, maxAge: 0 });
+          cookieStoreToUse.set(name, '', { ...options, maxAge: 0 });
         },
       },
     }

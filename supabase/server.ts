@@ -3,7 +3,9 @@ import { cookies } from 'next/headers';
 import { cache } from 'react';
 
 // Create a more resilient client that handles cookies properly
-export const createClient = cache(() => {
+export const createClient = () => {
+  // Only call cookies() when this function is actually executed
+  // This ensures it's called within a request context
   const cookieStore = cookies();
   
   return createServerClient(
@@ -31,4 +33,7 @@ export const createClient = cache(() => {
       },
     }
   );
-});
+};
+
+// Create a cached version for use in Server Components
+export const createClientCache = cache(createClient);

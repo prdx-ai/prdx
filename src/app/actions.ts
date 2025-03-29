@@ -72,21 +72,37 @@ export const signUpAction = async (formData: FormData) => {
   );
 };
 
+// Update the signInAction function
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  
+  if (!email || !password) {
+    return encodedRedirect("error", "/sign-in", "Email and password are required");
+  }
+  
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (error) {
-    return encodedRedirect("error", "/sign-in", error.message);
+    if (error) {
+      return encodedRedirect("error", "/sign-in", error.message);
+    }
+
+    if (!data.user) {
+      return encodedRedirect("error", "/sign-in", "Invalid login credentials");
+    }
+
+    // Successfully signed in
+    return redirect("/dashboard");
+  } catch (err: any) {
+    console.error("Sign-in error:", err);
+    return encodedRedirect("error", "/sign-in", "An unexpected error occurred");
   }
-
-  return redirect("/dashboard");
 };
 
 export const forgotPasswordAction = async (formData: FormData) => {

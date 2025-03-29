@@ -1,22 +1,13 @@
-import DashboardNavbar from "@/components/dashboard-navbar";
 import { createClient } from "../../../supabase/server";
 import { redirect } from "next/navigation";
-import { SubscriptionCheck } from "@/components/subscription-check";
 import ChatUI from "@/components/ChatUI";
+import DashboardNavbar from "@/components/dashboard-navbar";
+import { SubscriptionCheck } from "@/components/subscription-check";
+import ProtectedRoute from "@/components/protected-route";
 
-export default async function Dashboard() {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return redirect("/sign-in");
-  }
-
+export default function Dashboard() {
   return (
-    <SubscriptionCheck bypassForTesting={true}>
+    <ProtectedRoute>
       <div className="flex flex-col h-screen bg-background">
         <DashboardNavbar />
         <main className="flex-1 overflow-hidden">
@@ -25,6 +16,6 @@ export default async function Dashboard() {
           </div>
         </main>
       </div>
-    </SubscriptionCheck>
+    </ProtectedRoute>
   );
 }

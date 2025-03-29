@@ -1,35 +1,25 @@
 import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import { cache } from 'react';
+import { ReadonlyRequestCookies } from 'next/dist/server/web/spec-extension/adapters/request-cookies';
 
-// Create a more resilient client that handles cookies properly
-export const createClient = cache(() => {
+// Create a client that takes cookies as a parameter
+export const createServerComponentClient = (cookieStore: ReadonlyRequestCookies) => {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         get(name: string) {
-          // Only access cookies when this function is called
-          return cookies().get(name)?.value;
+          return cookieStore.get(name)?.value;
         },
-        set(name: string, value: string, options: any) {
-          try {
-            // Only access cookies when this function is called
-            cookies().set({ name, value, ...options });
-          } catch (error) {
-            // Handle cookies in read-only context
-          }
+        set() {
+          // Server components can't set cookies
+          return;
         },
-        remove(name: string, options: any) {
-          try {
-            // Only access cookies when this function is called
-            cookies().set({ name, value: '', ...options });
-          } catch (error) {
-            // Handle cookies in read-only context
-          }
+        remove() {
+          // Server components can't remove cookies
+          return;
         },
       },
     }
   );
-});
+};

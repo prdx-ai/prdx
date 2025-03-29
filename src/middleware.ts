@@ -30,11 +30,24 @@ export async function middleware(req: NextRequest) {
     // Refresh session if expired - required for Server Components
     const { data: { session }, error } = await supabase.auth.getSession()
 
-    if (error) {
-      // Handle auth session error silently or log it
+    // Handle protected routes
+    const isAuthRoute = 
+      req.nextUrl.pathname.startsWith('/sign-in') || 
+      req.nextUrl.pathname.startsWith('/sign-up') ||
+      req.nextUrl.pathname.startsWith('/forgot-password');
+    
+    // If user is authenticated and trying to access auth routes, redirect to dashboard
+    if (session && isAuthRoute) {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+    
+    // If user is not authenticated and trying to access protected routes, redirect to sign-in
+    if (!session && req.nextUrl.pathname.startsWith('/dashboard')) {
+      return NextResponse.redirect(new URL('/sign-in', req.url))
     }
   } catch (error) {
     // Handle any unexpected errors
+    console.error('Middleware error:', error)
   }
 
   return res

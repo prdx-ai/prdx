@@ -1,3 +1,5 @@
+'use client';
+
 import { signInAction } from "@/app/actions";
 import { FormMessage, Message } from "@/components/form-message";
 import Navbar from "@/components/navbar";
@@ -5,15 +7,41 @@ import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface LoginProps {
   searchParams: Promise<Message>;
 }
 
-export default async function SignInPage({ searchParams }: LoginProps) {
-  const message = await searchParams;
+export default function SignInPage({ searchParams }: LoginProps) {
+  const router = useRouter();
+  const [message, setMessage] = useState<Message | null>(null);
+  
+  useEffect(() => {
+    const loadMessage = async () => {
+      try {
+        const msg = await searchParams;
+        if ("message" in msg) {
+          setMessage(msg);
+        }
+      } catch (error) {
+        console.error("Error loading message:", error);
+      }
+    };
+    
+    loadMessage();
+  }, [searchParams]);
 
-  if ("message" in message) {
+  const handleSubmit = async (formData: FormData) => {
+    const result = await signInAction(formData);
+    
+    if (result && 'redirect' in result) {
+      router.push(result.redirect);
+    }
+  };
+
+  if (message) {
     return (
       <div className="flex h-screen w-full flex-1 items-center justify-center p-4 sm:max-w-md">
         <FormMessage message={message} />
@@ -26,7 +54,7 @@ export default async function SignInPage({ searchParams }: LoginProps) {
       <Navbar />
       <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-8">
         <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-sm">
-          <form className="flex flex-col space-y-6">
+          <form action={handleSubmit} className="flex flex-col space-y-6">
             <div className="space-y-2 text-center">
               <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
               <p className="text-sm text-muted-foreground">

@@ -93,12 +93,8 @@ export const signInAction = async (formData: FormData) => {
       return encodedRedirect("error", "/sign-in", error.message);
     }
 
-    if (!data.user) {
-      return encodedRedirect("error", "/sign-in", "Invalid login credentials");
-    }
-
-    // Successfully signed in
-    return redirect("/dashboard");
+    // Instead of using redirect, return a URL string
+    return { redirect: '/dashboard' };
   } catch (err: any) {
     console.error("Sign-in error:", err);
     return encodedRedirect("error", "/sign-in", "An unexpected error occurred");

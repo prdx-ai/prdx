@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createClient } from "../../../supabase/client";
+import { createClient } from "../../../../supabase/client";
 
 interface LoginProps {
   searchParams: { [key: string]: string | string[] | undefined };

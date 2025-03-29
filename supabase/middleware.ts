@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
+/**
+ * Updates the user session by refreshing auth cookies and handling route protection
+ * This middleware function is called on every request that matches the config pattern
+ * @param request The incoming request object
+ * @returns NextResponse with updated cookies or redirects for protected routes
+ */
 export const updateSession = async (request: NextRequest) => {
   try {
     // Create an unmodified response
@@ -36,7 +42,7 @@ export const updateSession = async (request: NextRequest) => {
       }
     );
 
-    // This will refresh session if expired - required for Server Components
+    // This will refresh session if expired - required for Server Components and route protection
     try {
       const { data, error } = await supabase.auth.getUser();
       const user = data?.user;

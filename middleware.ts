@@ -1,4 +1,3 @@
-import React from "react";
 import { updateSession } from "./supabase/middleware";
 import { type NextRequest } from "next/server";
 
@@ -13,9 +12,9 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - images - .svg, .png, .jpg, .jpeg, .gif, .webp
-     * Feel free to modify this pattern to include more paths.
+     * - public folder assets (images, fonts, etc.)
+     * - api routes that don't require authentication
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public|api/public).*)",
   ],
 };

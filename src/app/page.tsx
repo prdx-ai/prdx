@@ -1,232 +1,222 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Hero from "@/components/hero";
 import Navbar from "@/components/navbar";
-import PricingCard from "@/components/pricing-card";
 import Footer from "@/components/footer";
-import { createClient } from "../../supabase/server";
-import {
-  ArrowUpRight,
-  MessageSquare,
-  Image,
-  Video,
-  Sparkles,
-  Layers,
-  Shield,
-  Palette,
-} from "lucide-react";
 
-export default async function Home() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default function Home() {
+  const [inputValue, setInputValue] = useState("");
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const router = useRouter();
 
-  const { data: plans, error } = await supabase.functions.invoke(
-    "supabase-functions-get-plans",
-  );
+  useEffect(() => {
+    // Apply the dark mode class to the document root
+    document.documentElement.classList.add("dark");
+  }, []);
+
+  const handleInputSubmit = () => {
+    if (!inputValue.trim()) return;
+
+    // Show transition animation
+    setIsTransitioning(true);
+
+    // Store the input in localStorage for the chat page
+    localStorage.setItem("initialPrompt", inputValue);
+
+    // Navigate to dashboard after short delay for animation
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 800);
+  };
+
+  // Sample prompts for suggestions
+  const samplePrompts = [
+    "Futuristic cityscape",
+    "Cyberpunk character",
+    "Fantasy landscape",
+    "Space station",
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <Navbar />
       <Hero />
 
-      {/* Features Section */}
-      <section className="py-24 bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">
-              Powerful AI Media Generation
-            </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">
-              Transform your ideas into stunning visuals with our AI-powered
-              chat interface.
-            </p>
-          </div>
+      {/* KREA-style hero with centered prompt */}
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 relative">
+        {/* Background blur and gradient effects */}
+        <div className="absolute inset-0 bg-black opacity-90 z-0"></div>
+        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10 z-0"></div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              {
-                icon: <MessageSquare className="w-6 h-6" />,
-                title: "Chat Interface",
-                description: "Clean, intuitive ChatGPT-style UI",
-              },
-              {
-                icon: <Image className="w-6 h-6" />,
-                title: "Text-to-Image",
-                description: "Generate stunning images from text prompts",
-              },
-              {
-                icon: <Video className="w-6 h-6" />,
-                title: "Image-to-Video",
-                description: "Transform still images into dynamic videos",
-              },
-              {
-                icon: <Sparkles className="w-6 h-6" />,
-                title: "AI-Powered",
-                description: "State-of-the-art generative AI models",
-              },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="p-6 bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-700"
-              >
-                <div className="text-purple-500 mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-2 text-white">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-300">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        {/* Subtle glow effects */}
+        <div className="absolute top-1/4 left-1/4 w-1/2 h-1/4 bg-blue-500/10 rounded-full blur-[100px]"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-1/2 h-1/4 bg-purple-500/10 rounded-full blur-[100px]"></div>
 
-      {/* How It Works Section */}
-      <section className="py-20 bg-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">How Paradox Works</h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">
-              A seamless experience from chat to creation
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <div className="p-6 bg-gray-700 rounded-xl text-center">
-              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                1
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Chat with AI</h3>
-              <p className="text-gray-300">
-                Describe what you want to create in natural language
-              </p>
-            </div>
-            <div className="p-6 bg-gray-700 rounded-xl text-center">
-              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                2
-              </div>
-              <h3 className="text-xl font-semibold mb-2">
-                AI Processes Request
-              </h3>
-              <p className="text-gray-300">
-                Our modular pipeline identifies and executes the right tools
-              </p>
-            </div>
-            <div className="p-6 bg-gray-700 rounded-xl text-center">
-              <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">
-                3
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Get Results</h3>
-              <p className="text-gray-300">
-                View, save, and refine your generated media
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Advanced Features Section */}
-      <section className="py-20 bg-gray-900">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
-              <h2 className="text-3xl font-bold mb-6">Advanced Capabilities</h2>
-              <div className="space-y-4">
-                {[
-                  {
-                    icon: <Layers className="w-5 h-5" />,
-                    title: "Modular AI Pipeline",
-                    description:
-                      "Pluggable architecture for extensible media generation",
-                  },
-                  {
-                    icon: <Shield className="w-5 h-5" />,
-                    title: "User Management",
-                    description:
-                      "Save conversations and generated media to your account",
-                  },
-                  {
-                    icon: <Palette className="w-5 h-5" />,
-                    title: "Dark Mode First",
-                    description:
-                      "Clean, minimal design optimized for creative work",
-                  },
-                ].map((feature, index) => (
-                  <div key={index} className="flex items-start">
-                    <div className="mt-1 mr-4 p-2 bg-purple-600 rounded-lg">
-                      {feature.icon}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-lg">{feature.title}</h3>
-                      <p className="text-gray-300">{feature.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
-              <div className="p-4 bg-gray-700 rounded-lg mb-4">
-                <p className="text-gray-300 mb-2">
-                  User: Create an image of a futuristic city with flying cars
-                </p>
-                <div className="h-48 bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg flex items-center justify-center">
-                  <p className="text-sm text-white opacity-70">
-                    Generated image would appear here
-                  </p>
-                </div>
-              </div>
-              <div className="p-4 bg-gray-700 rounded-lg">
-                <p className="text-gray-300 mb-2">
-                  User: Turn this image into a short video
-                </p>
-                <div className="h-48 bg-gradient-to-br from-blue-600 to-purple-500 rounded-lg flex items-center justify-center">
-                  <p className="text-sm text-white opacity-70">
-                    Generated video would appear here
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section className="py-24 bg-gray-800" id="pricing">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">
-              Simple, Transparent Pricing
-            </h2>
-            <p className="text-gray-300 max-w-2xl mx-auto">
-              Choose the perfect plan for your creative needs
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {plans?.map((item: any) => (
-              <PricingCard key={item.id} item={item} user={user} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 bg-gray-900">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Transform Your Ideas?
-          </h2>
-          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join our community of creators and bring your imagination to life.
-          </p>
-          <a
-            href="/dashboard"
-            className="inline-flex items-center px-6 py-3 text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+        {/* Content container */}
+        <div className="z-10 w-full max-w-4xl mx-auto flex flex-col items-center">
+          {/* Logo/Brand Tag */}
+          <motion.div
+            className="mb-8 bg-white/5 backdrop-blur-sm border border-white/10 px-4 py-1 rounded-md"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            Start Creating Now
-            <ArrowUpRight className="ml-2 w-4 h-4" />
-          </a>
+            <span className="text-white uppercase text-sm tracking-widest">
+              POWERED BY AI
+            </span>
+          </motion.div>
+
+          {/* Main Title */}
+          <div className="text-center mb-12">
+            <motion.h1
+              className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 theme-transition"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              Paradox uses advanced AI to generate stunning
+              <span className="theme-transition bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient-x">
+                {" "}
+                images and videos
+              </span>
+            </motion.h1>
+            <motion.p
+              className="text-gray-400 text-base md:text-lg max-w-2xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              Start a conversation and bring your imagination to life with our
+              intelligent tools.
+            </motion.p>
+          </div>
+
+          {/* Main Input Box */}
+          <motion.div
+            className="w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <div className="relative">
+              {/* Input field styled like KREA's */}
+              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800 rounded-lg overflow-hidden">
+                <textarea
+                  className="w-full h-24 bg-transparent text-white p-4 resize-none focus:outline-none text-lg placeholder-gray-500"
+                  placeholder="Describe what you want to create..."
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleInputSubmit();
+                    }
+                  }}
+                  ref={inputRef}
+                ></textarea>
+
+                {/* Action buttons */}
+                <div className="flex flex-wrap items-center justify-between px-4 py-2 border-t border-gray-800">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-xs text-gray-500">
+                      Start creating with AI
+                    </span>
+                  </div>
+
+                  <Button
+                    onClick={handleInputSubmit}
+                    disabled={isTransitioning || !inputValue.trim()}
+                    className={`px-4 py-1.5 rounded-md flex items-center space-x-1 transition-colors ${isTransitioning || !inputValue.trim() ? "bg-blue-700/50 text-blue-200/50 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-500 text-white"}`}
+                  >
+                    {isTransitioning ? (
+                      <span className="animate-spin mr-2">⟳</span>
+                    ) : (
+                      <ArrowRight className="h-4 w-4 mr-1" />
+                    )}
+                    <span>Generate</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Sample prompts chips */}
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              {samplePrompts.map((prompt, i) => (
+                <motion.button
+                  key={i}
+                  className="text-xs px-3 py-1.5 bg-white/5 hover:bg-white/10 text-gray-300 rounded-full transition-all duration-200 hover:scale-105 active:scale-95"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.5 + i * 0.1 }}
+                  onClick={() =>
+                    setInputValue(
+                      `Create a ${prompt.toLowerCase()} with stunning details`,
+                    )
+                  }
+                >
+                  {prompt}
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
         </div>
-      </section>
+      </div>
 
       <Footer />
+
+      {/* Futuristic transitioning overlay */}
+      <AnimatePresence>
+        {isTransitioning && (
+          <motion.div
+            className="fixed inset-0 bg-gray-950 z-50 flex items-center justify-center overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Background effects */}
+            <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-10"></div>
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-cyan-500/30 to-purple-600/20 animate-gradient-x" />
+            </div>
+
+            {/* Light beams */}
+            <div className="absolute top-0 left-1/2 w-px h-screen bg-gradient-to-b from-blue-500 to-transparent opacity-50 animate-pulse" />
+            <div className="absolute top-1/2 left-0 h-px w-screen bg-gradient-to-r from-transparent to-purple-500 opacity-50 animate-pulse" />
+
+            {/* Central element */}
+            <div className="relative z-10">
+              <div className="relative animate-spin-slow">
+                <div className="absolute -inset-16 rounded-full border border-blue-500/30 opacity-50" />
+                <div className="absolute -inset-12 rounded-full border border-cyan-500/40 opacity-50" />
+                <div className="absolute -inset-8 rounded-full border border-purple-500/30 opacity-50" />
+              </div>
+
+              <div className="relative bg-black/30 backdrop-blur-md p-6 rounded-2xl border border-white/10 flex flex-col items-center justify-center gap-4 animate-fade-in">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 via-cyan-500 to-purple-500 flex items-center justify-center animate-pulse">
+                  <Sparkles className="h-8 w-8 text-white" />
+                </div>
+
+                <h3 className="text-xl text-white font-medium animate-fade-in">
+                  Initializing Your Creation
+                </h3>
+
+                <div className="flex space-x-2 mt-2 animate-fade-in">
+                  <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse"></span>
+                  <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse delay-150"></span>
+                  <span className="h-2 w-2 bg-blue-500 rounded-full animate-pulse delay-300"></span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -15,7 +15,7 @@ import {
   Home,
   PanelLeft,
   Settings,
-  Gallery,
+  LayoutGrid,
   Palette,
   Wand2,
   Zap,
@@ -244,7 +244,7 @@ export default function ChatUI({
           <Sparkles className="h-5 w-5" />
         </Button>
         <Button variant="ghost" size="icon" className="rounded-full">
-          <Gallery className="h-5 w-5" />
+          <LayoutGrid className="h-5 w-5" />
         </Button>
         <Button variant="ghost" size="icon" className="rounded-full">
           <Wand2 className="h-5 w-5" />

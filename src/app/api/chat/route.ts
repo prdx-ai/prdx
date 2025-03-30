@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "../../../../supabase/server";
-import { generateCompletion as generateOpenAICompletion } from "@/lib/openai";
-import { generateCompletion as generateAnthropicCompletion } from "@/lib/anthropic";
-import { generateCompletion as generateGeminiCompletion } from "@/lib/gemini";
 import { generateSystemPrompt } from "@/lib/systemPrompt";
 import { getAllTools, executeTool } from "@/lib/tools";
+import { getLLMProvider, getDefaultLLMProvider } from "@/lib/models/llm";
+
+// Import all LLM providers to register them
+import "@/lib/models/llm/openai";
+import "@/lib/models/llm/anthropic";
+import "@/lib/models/llm/gemini";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,7 +24,7 @@ export async function POST(request: NextRequest) {
       message,
       history,
       systemPromptId = "default",
-      model = "openai", // Default to OpenAI if not specified
+      model = getDefaultLLMProvider(), // Use the default LLM provider if not specified
     } = await request.json();
 
     if (!message) {
@@ -56,38 +59,23 @@ export async function POST(request: NextRequest) {
       content: message,
     });
 
-    // Determine which AI service to use based on model parameter and system prompt
-    let response;
-
-    // For image or video generation, prefer Anthropic if available
-    const isMediaGeneration =
-      systemPromptId === "image-generation" ||
-      systemPromptId === "video-generation";
-    const useAnthropicForMedia =
-      process.env.ANTHROPIC_API_KEY && isMediaGeneration;
-
-    if (model === "anthropic" || useAnthropicForMedia) {
-      // Use Anthropic
-      response = await generateAnthropicCompletion(
-        messages.filter((msg: any) => msg.role !== "system"),
-        systemPrompt,
-        { temperature: 0.7 },
+    // Get the appropriate LLM provider
+    const llmProvider = getLLMProvider(model);
+    if (!llmProvider) {
+      return NextResponse.json(
+        { error: `LLM provider '${model}' not found or not available` },
+        { status: 400 },
       );
-    } else if (model === "gemini" && process.env.GEMINI_API_KEY) {
-      // Use Gemini
-      response = await generateGeminiCompletion(messages, systemPrompt, {
-        temperature: 0.7,
-      });
-    } else {
-      // Default to OpenAI
-      const openAIMessages = [
-        { role: "system", content: systemPrompt },
-        ...messages,
-      ];
-      response = await generateOpenAICompletion(openAIMessages, {
-        temperature: 0.7,
-      });
     }
+
+    // Generate response using the selected LLM provider
+    const response = await llmProvider.generateCompletion(
+      messages,
+      systemPrompt,
+      {
+        temperature: 0.7,
+      },
+    );
 
     // Check for tool invocation patterns in the response
     const toolPattern = /use the ([\w-]+) tool with (.+)/i;
